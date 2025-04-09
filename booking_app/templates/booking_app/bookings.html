@@ -1,0 +1,64 @@
+<!-- booking_app/templates/booking_app/my_bookings.html -->
+{% extends 'booking_app/base.html' %}
+
+{% block title %}My Bookings - Conference Booking{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">My Bookings</h1>
+
+{% if bookings %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Conference</th>
+                <th>Time</th>
+                <th>Booking Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>
+                    <a href="{% url 'conference_detail' booking.conference.conference_id %}">
+                        {{ booking.conference.topic }}
+                    </a>
+                </td>
+                <td>{{ booking.conference.time_start|time:"g:i A" }} - {{ booking.conference.time_end|time:"g:i A" }}</td>
+                <td>{{ booking.time|time:"g:i A" }}</td>
+                <td>
+                    {% if booking.status == 'confirmed' %}
+                    <span class="badge bg-success">Confirmed</span>
+                    {% elif booking.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif booking.status == 'cancelled' %}
+                    <span class="badge bg-danger">Cancelled</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if booking.status == 'confirmed' %}
+                    <div class="btn-group">
+                        <a href="{% url 'cancel_booking' booking.booking_id %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <a href="{% url <a href="{% url 'feedback' booking.conference.conference_id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-comment"></i> Feedback
+                        </a>
+                    </div>
+                    {% elif booking.status == 'cancelled' %}
+                    <span class="text-muted">No actions available</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    You have no bookings yet. <a href="{% url 'conferences' %}">Browse conferences</a> to make a booking.
+</div>
+{% endif %}
+{% endblock %}

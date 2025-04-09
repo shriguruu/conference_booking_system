@@ -1,0 +1,151 @@
+<!-- booking_app/templates/booking_app/booking_form.html -->
+{% extends 'booking_app/base.html' %}
+
+{% block title %}Book Conference - Conference Booking{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'conferences' %}">Conferences</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'conference_detail' conference.conference_id %}">{{ conference.topic }}</a></li>
+        <li class="breadcrumb-item active">Book</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0">Confirm Booking</h3>
+    </div>
+    <div class="card-body">
+        <div class="mb-4">
+            <h4>Conference Details</h4>
+            <dl class="row">
+                <dt class="col-sm-3">Topic:</dt>
+                <dd class="col-sm-9">{{ conference.topic }}</dd>
+                
+                <dt class="col-sm-3">Time:</dt>
+                <dd class="col-sm-9">{{ conference.time_start|time:"g:i A" }} - {{ conference.time_end|time:"g:i A" }}</dd>
+                
+                <dt class="col-sm-3">Speakers:</dt>
+                <dd class="col-sm-9">
+                    {% for speaker in conference.speakers.all %}
+                    {{ speaker.first_name }} {{ speaker.last_name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </dd>
+            </dl>
+        </div>
+        
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Please confirm your booking for this conference. Once booked, you can cancel it anytime from your bookings page.
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.conference }}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'conference_detail' conference.conference_id %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success">Confirm Booking</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+<!-- booking_app/templates/booking_app/cancel_booking.html -->
+{% extends 'booking_app/base.html' %}
+
+{% block title %}Cancel Booking - Conference Booking{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-danger text-white">
+        <h3 class="card-title mb-0">Cancel Booking</h3>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Are you sure you want to cancel your booking for <strong>{{ booking.conference.topic }}</strong>?
+        </div>
+        
+        <div class="mb-4">
+            <h4>Booking Details</h4>
+            <dl class="row">
+                <dt class="col-sm-3">Conference:</dt>
+                <dd class="col-sm-9">{{ booking.conference.topic }}</dd>
+                
+                <dt class="col-sm-3">Time:</dt>
+                <dd class="col-sm-9">{{ booking.conference.time_start|time:"g:i A" }} - {{ booking.conference.time_end|time:"g:i A" }}</dd>
+                
+                <dt class="col-sm-3">Booking Status:</dt>
+                <dd class="col-sm-9">
+                    {% if booking.status == 'confirmed' %}
+                    <span class="badge bg-success">Confirmed</span>
+                    {% elif booking.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </dd>
+            </dl>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'my_bookings' %}" class="btn btn-secondary">Keep Booking</a>
+                <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+<!-- booking_app/templates/booking_app/feedback_form.html -->
+{% extends 'booking_app/base.html' %}
+
+{% block title %}Provide Feedback - Conference Booking{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'my_bookings' %}">My Bookings</a></li>
+        <li class="breadcrumb-item active">Feedback</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0">Provide Feedback</h3>
+    </div>
+    <div class="card-body">
+        <h4 class="mb-3">{{ conference.topic }}</h4>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_comments" class="form-label">Comments</label>
+                {{ form.comments.errors }}
+                <textarea name="comments" id="id_comments" class="form-control" rows="4" placeholder="Share your thoughts about this conference..."></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label">Rating</label>
+                {{ form.rating.errors }}
+                <div class="d-flex">
+                    {% for radio in form.rating %}
+                    <div class="form-check form-check-inline">
+                        <input type="radio" name="rating" value="{{ radio.data.value }}" id="id_rating_{{ forloop.counter0 }}" class="form-check-input" {% if forloop.first %}checked{% endif %}>
+                        <label class="form-check-label" for="id_rating_{{ forloop.counter0 }}">{{ radio.choice_label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'my_bookings' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

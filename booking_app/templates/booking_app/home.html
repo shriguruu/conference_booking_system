@@ -1,0 +1,38 @@
+<!-- booking_app/templates/booking_app/home.html -->
+{% extends 'booking_app/base.html' %}
+
+{% block title %}Home - Conference Booking{% endblock %}
+
+{% block content %}
+<div class="jumbotron bg-light p-5 rounded">
+    <h1 class="display-4">Welcome to Conference Booking System</h1>
+    <p class="lead">Discover and book interesting conferences with expert speakers.</p>
+    <hr class="my-4">
+    <p>Browse our upcoming conferences and secure your spot today!</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'conferences' %}">View Conferences</a>
+</div>
+
+<div class="my-5">
+    <h2>Upcoming Conferences</h2>
+    <div class="row mt-4">
+        {% for conference in conferences %}
+        <div class="col-md-4 mb-4">
+            <div class="card conference-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ conference.topic }}</h5>
+                    <p class="card-text text-muted">{{ conference.time_start|time:"g:i A" }} - {{ conference.time_end|time:"g:i A" }}</p>
+                    <p class="card-text">{{ conference.description|truncatechars:100 }}</p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="{% url 'conference_detail' conference.conference_id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col">
+            <p>No upcoming conferences found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

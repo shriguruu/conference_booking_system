@@ -1,0 +1,72 @@
+<!-- booking_app/templates/booking_app/conferences.html -->
+{% extends 'booking_app/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Conferences - Conference Booking{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">All Conferences</h1>
+
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Search Conferences</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="id_topic" class="form-label">Topic</label>
+                {{ search_form.topic|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4">
+                <label for="id_category" class="form-label">Category</label>
+                {{ search_form.category|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4">
+                <label for="id_speaker" class="form-label">Speaker</label>
+                {{ search_form.speaker|add_class:"form-select" }}
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="{% url 'conferences' %}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% for conference in conferences %}
+    <div class="col-md-6 mb-4">
+        <div class="card conference-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ conference.topic }}</h5>
+                <p class="card-text">
+                    <strong>Time:</strong> {{ conference.time_start|time:"g:i A" }} - {{ conference.time_end|time:"g:i A" }}<br>
+                    <strong>Categories:</strong> 
+                    {% for category in conference.categories.all %}
+                        <span class="badge bg-info text-dark me-1">{{ category.category }}</span>
+                    {% endfor %}
+                </p>
+                <p class="card-text">{{ conference.description|truncatechars:150 }}</p>
+                <p class="card-text">
+                    <small class="text-muted">
+                        Speakers: 
+                        {% for speaker in conference.speakers.all %}
+                            {{ speaker.first_name }} {{ speaker.last_name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </small>
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{% url 'conference_detail' conference.conference_id %}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col">
+        <div class="alert alert-info">
+            No conferences found matching your criteria.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
