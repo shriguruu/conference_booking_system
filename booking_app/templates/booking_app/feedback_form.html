@@ -1,0 +1,51 @@
+<!-- booking_app/templates/booking_app/feedback_form.html -->
+{% extends 'booking_app/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Provide Feedback - Conference Booking{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'my_bookings' %}">My Bookings</a></li>
+        <li class="breadcrumb-item active">Feedback</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0">Provide Feedback</h3>
+    </div>
+    <div class="card-body">
+        <h4 class="mb-3">{{ conference.topic }}</h4>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_comments" class="form-label">Comments</label>
+                {{ form.comments.errors }}
+                <textarea name="comments" id="id_comments" class="form-control" rows="4" placeholder="Share your thoughts about this conference..."></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label">Rating</label>
+                {{ form.rating.errors }}
+                <div class="d-flex">
+                    {% for radio in form.rating %}
+                    <div class="form-check form-check-inline">
+                        <input type="radio" name="rating" value="{{ radio.data.value }}" id="id_rating_{{ forloop.counter0 }}" class="form-check-input" {% if forloop.first %}checked{% endif %}>
+                        <label class="form-check-label" for="id_rating_{{ forloop.counter0 }}">{{ radio.choice_label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'my_bookings' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
