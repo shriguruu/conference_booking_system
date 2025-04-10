@@ -25,12 +25,25 @@
                     <h5>Conference Details</h5>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
+                            <i class="fas fa-calendar me-2"></i>
+                            <strong>Date:</strong> {{ conference.date|date:"F d, Y" }}
+                        </li>
+                        <li class="list-group-item">
                             <i class="fas fa-clock me-2"></i>
                             <strong>Time:</strong> {{ conference.time_start|time:"g:i A" }} - {{ conference.time_end|time:"g:i A" }}
                         </li>
                         <li class="list-group-item">
                             <i class="fas fa-users me-2"></i>
                             <strong>Capacity:</strong> {{ conference.capacity }} attendees
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-chair me-2"></i>
+                            <strong>Spots Left:</strong> 
+                            {% if spots_left > 0 %}
+                                <span class="badge bg-success">{{ spots_left }} spots available</span>
+                            {% else %}
+                                <span class="badge bg-danger">Fully Booked</span>
+                            {% endif %}
                         </li>
                         <li class="list-group-item">
                             <i class="fas fa-tag me-2"></i>
@@ -67,7 +80,7 @@
                 <div class="text-center">
                     {% if user.is_authenticated %}
                         {% if can_book %}
-                            <a href="{% url 'book_conference' conference.conference_id %}" class="btn btn-success btn-lg w-100">
+                            <a href="{% url 'book_conference' conference.slug %}" class="btn btn-success btn-lg w-100">
                                 <i class="fas fa-ticket-alt me-2"></i>Book Now
                             </a>
                         {% else %}

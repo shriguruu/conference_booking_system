@@ -8,9 +8,9 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('conferences/', views.conferences_view, name='conferences'),
-    path('conferences/<int:conference_id>/', views.conference_detail_view, name='conference_detail'),
-    path('conferences/<int:conference_id>/book/', views.booking_view, name='book_conference'),
+    path('conferences/<slug:slug>/', views.conference_detail_view, name='conference_detail'),
+    path('conferences/<slug:slug>/book/', views.booking_view, name='book_conference'),
+    path('conferences/<slug:slug>/feedback/', views.feedback_view, name='feedback'),
     path('my-bookings/', views.my_bookings_view, name='my_bookings'),
     path('my-bookings/<int:booking_id>/cancel/', views.cancel_booking_view, name='cancel_booking'),
-    path('conferences/<int:conference_id>/feedback/', views.feedback_view, name='feedback'),
 ]

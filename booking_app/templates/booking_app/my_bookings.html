@@ -26,7 +26,7 @@
                     {% for booking in bookings %}
                     <tr>
                         <td>
-                            <a href="{% url 'conference_detail' booking.conference.conference_id %}">
+                            <a href="{% url 'conference_detail' booking.conference.slug %}">
                                 {{ booking.conference.topic }}
                             </a>
                         </td>
@@ -48,7 +48,7 @@
                                 </a>
                                 {% endif %}
                                 
-                                <a href="{% url 'feedback' booking.conference.conference_id %}" class="btn btn-outline-primary">
+                                <a href="{% url 'feedback' booking.conference.slug %}" class="btn btn-outline-primary">
                                     <i class="fas fa-comment"></i> Feedback
                                 </a>
                             </div>

@@ -39,6 +39,13 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'my_bookings' %}">My Bookings</a>
                     </li>
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}">
+                            <i class="fas fa-user-shield"></i> Admin
+                        </a>
+                    </li>
+                    {% endif %}
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">

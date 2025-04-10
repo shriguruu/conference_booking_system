@@ -59,8 +59,12 @@ WSGI_APPLICATION = 'conference_system.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'conference_db',
+        'USER': 'root',
+        'PASSWORD': 'Guruu0812',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 

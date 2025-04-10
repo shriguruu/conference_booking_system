@@ -62,16 +62,19 @@ def conferences_view(request):
         'search_form': search_form
     })
 
-def conference_detail_view(request, conference_id):
-    conference = get_object_or_404(Conference, pk=conference_id)
+def conference_detail_view(request, slug):
+    conference = get_object_or_404(Conference, slug=slug)
     speakers = conference.speakers.all()
     can_book = True
+    
+    # Calculate spots left
+    bookings_count = Booking.objects.filter(conference=conference, status='confirmed').count()
+    spots_left = conference.capacity - bookings_count
     
     if request.user.is_authenticated:
         # Check if the user has already booked this conference
         already_booked = Booking.objects.filter(user=request.user, conference=conference).exists()
         # Check if the conference is at capacity
-        bookings_count = Booking.objects.filter(conference=conference, status='confirmed').count()
         at_capacity = bookings_count >= conference.capacity
         
         can_book = not already_booked and not at_capacity
@@ -79,24 +82,25 @@ def conference_detail_view(request, conference_id):
     return render(request, 'booking_app/conference_detail.html', {
         'conference': conference,
         'speakers': speakers,
-        'can_book': can_book
+        'can_book': can_book,
+        'spots_left': spots_left
     })
 
 @login_required
-def booking_view(request, conference_id):
-    conference = get_object_or_404(Conference, pk=conference_id)
+def booking_view(request, slug):
+    conference = get_object_or_404(Conference, slug=slug)
     
     # Check if the user has already booked this conference
     already_booked = Booking.objects.filter(user=request.user, conference=conference).exists()
     if already_booked:
         messages.error(request, 'You have already booked this conference.')
-        return redirect('conference_detail', conference_id=conference_id)
+        return redirect('conference_detail', slug=slug)
     
     # Check if the conference is at capacity
     bookings_count = Booking.objects.filter(conference=conference, status='confirmed').count()
     if bookings_count >= conference.capacity:
         messages.error(request, 'This conference is at full capacity.')
-        return redirect('conference_detail', conference_id=conference_id)
+        return redirect('conference_detail', slug=slug)
     
     if request.method == 'POST':
         form = BookingForm(request.POST)
@@ -111,7 +115,7 @@ def booking_view(request, conference_id):
                 return redirect('my_bookings')
             except IntegrityError:
                 messages.error(request, 'You have already booked this conference.')
-                return redirect('conference_detail', conference_id=conference_id)
+                return redirect('conference_detail', slug=slug)
     else:
         form = BookingForm(initial={'conference': conference})
     
@@ -138,8 +142,8 @@ def cancel_booking_view(request, booking_id):
     return render(request, 'booking_app/cancel_booking.html', {'booking': booking})
 
 @login_required
-def feedback_view(request, conference_id):
-    conference = get_object_or_404(Conference, pk=conference_id)
+def feedback_view(request, slug):
+    conference = get_object_or_404(Conference, slug=slug)
     
     # Check if the user has booked this conference
     booking = get_object_or_404(Booking, user=request.user, conference=conference)

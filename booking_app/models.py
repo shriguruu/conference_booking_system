@@ -1,6 +1,9 @@
 # booking_app/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.text import slugify
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 class User(AbstractUser):
     phone = models.BigIntegerField(null=True, blank=True)
@@ -25,7 +28,9 @@ class SpeakerPhone(models.Model):
 class Conference(models.Model):
     conference_id = models.AutoField(primary_key=True)
     topic = models.CharField(max_length=45)
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
     description = models.CharField(max_length=255)
+    date = models.DateField(null=True, blank=True)  # Making it nullable temporarily
     time_start = models.TimeField()
     time_end = models.TimeField() 
     capacity = models.IntegerField()
@@ -33,6 +38,17 @@ class Conference(models.Model):
     
     def __str__(self):
         return self.topic
+
+@receiver(pre_save, sender=Conference)
+def create_conference_slug(sender, instance, **kwargs):
+    if not instance.slug:
+        base_slug = slugify(instance.topic)
+        slug = base_slug
+        counter = 1
+        while Conference.objects.filter(slug=slug).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+        instance.slug = slug
 
 class ConferenceCategory(models.Model):
     conference = models.ForeignKey(Conference, on_delete=models.CASCADE, related_name='categories')

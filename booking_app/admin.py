@@ -32,9 +32,9 @@ class ConferenceHasSpeakerInline(admin.TabularInline):
     extra = 1
 
 class ConferenceAdmin(admin.ModelAdmin):
-    list_display = ['conference_id', 'topic', 'time_start', 'time_end', 'capacity']
+    list_display = ['conference_id', 'topic', 'date', 'time_start', 'time_end', 'capacity']
     search_fields = ['topic', 'description']
-    list_filter = ['time_start']
+    list_filter = ['date', 'time_start']
     inlines = [ConferenceCategoryInline, ConferenceHasSpeakerInline]
 
 class BookingAdmin(admin.ModelAdmin):
