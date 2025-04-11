@@ -13,4 +13,6 @@ urlpatterns = [
     path('conferences/<slug:slug>/feedback/', views.feedback_view, name='feedback'),
     path('my-bookings/', views.my_bookings_view, name='my_bookings'),
     path('my-bookings/<int:booking_id>/cancel/', views.cancel_booking_view, name='cancel_booking'),
+    path('receipt/<int:booking_id>/', views.receipt_view, name='receipt'),
+    path('receipt/<int:booking_id>/download/', views.download_receipt_view, name='download_receipt'),
 ]

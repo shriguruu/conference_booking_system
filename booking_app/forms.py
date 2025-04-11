@@ -30,14 +30,14 @@ class PaymentForm(forms.ModelForm):
                 ('credit_card', 'Credit Card'),
                 ('debit_card', 'Debit Card'),
                 ('paypal', 'PayPal'),
-            ]),
+            ], attrs={'class': 'form-select'}),
         }
     
     # Credit card fields (for demo purposes)
-    card_number = forms.CharField(max_length=16, required=False)
-    card_holder = forms.CharField(max_length=100, required=False)
-    expiry_date = forms.CharField(max_length=5, required=False, help_text="Format: MM/YY")
-    cvv = forms.CharField(max_length=4, required=False)
+    card_number = forms.CharField(max_length=16, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    card_holder = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    expiry_date = forms.CharField(max_length=5, required=False, help_text="Format: MM/YY", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    cvv = forms.CharField(max_length=4, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 class FeedbackForm(forms.ModelForm):
     RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]

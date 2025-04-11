@@ -4,11 +4,36 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import IntegrityError
+from django.http import HttpResponse
 from .models import User, Conference, Booking, Feedback, Speaker, Payment
 from .forms import UserRegistrationForm, BookingForm, FeedbackForm, ConferenceSearchForm, PaymentForm
 import uuid
+from django.template.loader import render_to_string
+from django.conf import settings
+import os
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from decimal import Decimal
+
+def set_default_prices():
+    """Set default prices for conferences that don't have a price set."""
+    conferences = Conference.objects.filter(price=0)
+    for conference in conferences:
+        # Set a default price based on the conference topic length (just for demo purposes)
+        default_price = Decimal('50.00') + (len(conference.topic) * Decimal('5.00'))
+        conference.price = default_price
+        conference.save()
+        print(f"Set price for {conference.topic} to ${default_price}")
 
 def home_view(request):
+    # Set default prices for conferences that don't have a price set
+    set_default_prices()
+    
     conferences = Conference.objects.all().order_by('time_start')[:5]
     return render(request, 'booking_app/home.html', {'conferences': conferences})
 
@@ -140,7 +165,7 @@ def booking_view(request, slug):
                 booking.save()
                 
                 messages.success(request, 'Booking and payment successful!')
-                return redirect('my_bookings')
+                return redirect('receipt', booking_id=booking.booking_id)
                 
             except IntegrityError:
                 messages.error(request, 'You have already booked this conference.')
@@ -154,6 +179,146 @@ def booking_view(request, slug):
         'payment_form': payment_form,
         'conference': conference
     })
+
+@login_required
+def receipt_view(request, booking_id):
+    booking = get_object_or_404(Booking, booking_id=booking_id, user=request.user)
+    payment = get_object_or_404(Payment, booking=booking)
+    
+    return render(request, 'booking_app/receipt.html', {
+        'booking': booking,
+        'payment': payment
+    })
+
+@login_required
+def download_receipt_view(request, booking_id):
+    booking = get_object_or_404(Booking, booking_id=booking_id, user=request.user)
+    payment = get_object_or_404(Payment, booking=booking)
+    
+    # Create a file-like buffer to receive PDF data
+    buffer = io.BytesIO()
+    
+    # Create the PDF object, using the buffer as its "file."
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    
+    # Container for the 'Flowable' objects
+    elements = []
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=30,
+        alignment=1  # Center alignment
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=12,
+        spaceAfter=10
+    )
+    
+    normal_style = styles['Normal']
+    
+    # Add content
+    elements.append(Paragraph("Payment Receipt", title_style))
+    elements.append(Spacer(1, 12))
+    
+    # Conference Details
+    elements.append(Paragraph("Conference Details", heading_style))
+    conference_data = [
+        ["Conference:", booking.conference.topic],
+        ["Date:", booking.conference.date.strftime("%B %d, %Y") if booking.conference.date else "Not specified"],
+        ["Time:", f"{booking.conference.time_start.strftime('%I:%M %p')} - {booking.conference.time_end.strftime('%I:%M %p')}"],
+    ]
+    
+    conference_table = Table(conference_data, colWidths=[1.5*inch, 4*inch])
+    conference_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(conference_table)
+    elements.append(Spacer(1, 12))
+    
+    # Payment Information
+    elements.append(Paragraph("Payment Information", heading_style))
+    payment_data = [
+        ["Receipt #:", payment.transaction_id],
+        ["Date:", payment.payment_date.strftime("%B %d, %Y %H:%M")],
+        ["Method:", payment.payment_method.title()],
+        ["Status:", "Paid"],
+    ]
+    
+    payment_table = Table(payment_data, colWidths=[1.5*inch, 4*inch])
+    payment_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(payment_table)
+    elements.append(Spacer(1, 12))
+    
+    # Attendee Information
+    elements.append(Paragraph("Attendee Information", heading_style))
+    attendee_data = [
+        ["Name:", f"{booking.user.first_name} {booking.user.last_name}"],
+        ["Email:", booking.user.email],
+    ]
+    
+    if booking.user.phone:
+        attendee_data.append(["Phone:", str(booking.user.phone)])
+    
+    attendee_table = Table(attendee_data, colWidths=[1.5*inch, 4*inch])
+    attendee_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(attendee_table)
+    elements.append(Spacer(1, 12))
+    
+    # Amount Details
+    elements.append(Paragraph("Amount Details", heading_style))
+    amount_data = [
+        ["Description", "Amount"],
+        [f"Conference Registration - {booking.conference.topic}", f"${payment.amount}"],
+        ["Total", f"${payment.amount}"],
+    ]
+    
+    amount_table = Table(amount_data, colWidths=[4*inch, 1.5*inch])
+    amount_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+    elements.append(amount_table)
+    
+    # Build the PDF
+    doc.build(elements)
+    
+    # Get the value of the BytesIO buffer and write it to the response
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    # Create the HTTP response
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="receipt_{booking.booking_id}.pdf"'
+    
+    return response
 
 @login_required
 def my_bookings_view(request):

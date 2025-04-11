@@ -93,6 +93,9 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            {% if booking.payment_status == 'completed' %}
+                                            <a href="{% url 'receipt' booking.booking_id %}" class="btn btn-primary">View Receipt</a>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -108,6 +111,11 @@
                                 <a href="{% url 'feedback' booking.conference.slug %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-comment"></i> Feedback
                                 </a>
+                                {% if booking.payment_status == 'completed' %}
+                                <a href="{% url 'receipt' booking.booking_id %}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-receipt"></i> Receipt
+                                </a>
+                                {% endif %}
                             </div>
                             {% elif booking.status == 'cancelled' %}
                             <span class="text-muted">No actions available</span>

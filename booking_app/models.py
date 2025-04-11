@@ -8,6 +8,12 @@ from django.dispatch import receiver
 class User(AbstractUser):
     phone = models.BigIntegerField(null=True, blank=True)
     role = models.CharField(max_length=45, default='attendee')  # 'attendee', 'admin', 'organizer'
+    
+    def get_full_name(self):
+        """Return the user's full name."""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.username
 
 class Speaker(models.Model):
     speaker_id = models.CharField(max_length=45, primary_key=True)

@@ -1,0 +1,120 @@
+<!-- booking_app/templates/booking_app/receipt.html -->
+{% extends 'booking_app/base.html' %}
+{% load static %}
+
+{% block title %}Payment Receipt - Conference Booking{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h3 class="card-title mb-0">Payment Receipt</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Conference Details</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Conference:</dt>
+                        <dd class="col-sm-8">{{ booking.conference.topic }}</dd>
+                        
+                        <dt class="col-sm-4">Date:</dt>
+                        <dd class="col-sm-8">{{ booking.conference.date|date:"F d, Y" }}</dd>
+                        
+                        <dt class="col-sm-4">Time:</dt>
+                        <dd class="col-sm-8">{{ booking.conference.time_start|time:"g:i A" }} - {{ booking.conference.time_end|time:"g:i A" }}</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h5>Payment Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Receipt #:</dt>
+                        <dd class="col-sm-8">{{ payment.transaction_id }}</dd>
+                        
+                        <dt class="col-sm-4">Date:</dt>
+                        <dd class="col-sm-8">{{ payment.payment_date|date:"F d, Y H:i" }}</dd>
+                        
+                        <dt class="col-sm-4">Method:</dt>
+                        <dd class="col-sm-8">{{ payment.payment_method|title }}</dd>
+                        
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8"><span class="badge bg-success">Paid</span></dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Attendee Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Name:</dt>
+                        <dd class="col-sm-8">{{ booking.user.get_full_name }}</dd>
+                        
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">{{ booking.user.email }}</dd>
+                        
+                        {% if booking.user.phone %}
+                        <dt class="col-sm-4">Phone:</dt>
+                        <dd class="col-sm-8">{{ booking.user.phone }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h5>Booking Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Booking ID:</dt>
+                        <dd class="col-sm-8">{{ booking.booking_id }}</dd>
+                        
+                        <dt class="col-sm-4">Booking Date:</dt>
+                        <dd class="col-sm-8">{{ booking.time|date:"F d, Y H:i" }}</dd>
+                        
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8"><span class="badge bg-success">Confirmed</span></dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Description</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Conference Registration - {{ booking.conference.topic }}</td>
+                                    <td class="text-end">${{ payment.amount }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>Total</strong></td>
+                                    <td class="text-end"><strong>${{ payment.amount }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Please keep this receipt for your records. You can also view it anytime from your bookings page.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <a href="{% url 'my_bookings' %}" class="btn btn-secondary">Back to My Bookings</a>
+                <a href="{% url 'download_receipt' booking.booking_id %}" class="btn btn-primary">
+                    <i class="fas fa-download me-2"></i>Download Receipt
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
