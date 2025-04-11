@@ -4,8 +4,9 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import IntegrityError
-from .models import User, Conference, Booking, Feedback, Speaker
-from .forms import UserRegistrationForm, BookingForm, FeedbackForm, ConferenceSearchForm
+from .models import User, Conference, Booking, Feedback, Speaker, Payment
+from .forms import UserRegistrationForm, BookingForm, FeedbackForm, ConferenceSearchForm, PaymentForm
+import uuid
 
 def home_view(request):
     conferences = Conference.objects.all().order_by('time_start')[:5]
@@ -103,24 +104,54 @@ def booking_view(request, slug):
         return redirect('conference_detail', slug=slug)
     
     if request.method == 'POST':
-        form = BookingForm(request.POST)
-        if form.is_valid():
-            booking = form.save(commit=False)
+        booking_form = BookingForm(request.POST)
+        payment_form = PaymentForm(request.POST)
+        
+        if booking_form.is_valid() and payment_form.is_valid():
+            # Create the booking
+            booking = booking_form.save(commit=False)
             booking.user = request.user
             booking.conference = conference
-            booking.status = 'confirmed'
+            booking.status = 'pending'  # Set to pending until payment is confirmed
+            booking.payment_status = 'pending'
+            
             try:
                 booking.save()
-                messages.success(request, 'Booking successful!')
+                
+                # Create the payment
+                payment = Payment.objects.create(
+                    booking=booking,
+                    amount=conference.price,
+                    payment_method=payment_form.cleaned_data['payment_method'],
+                    transaction_id=str(uuid.uuid4()),  # Generate a unique transaction ID
+                    status='pending'
+                )
+                
+                # In a real application, you would integrate with a payment gateway here
+                # For demo purposes, we'll simulate a successful payment
+                
+                # Simulate payment processing
+                payment.status = 'completed'
+                payment.save()
+                
+                # Update booking status
+                booking.status = 'confirmed'
+                booking.payment_status = 'completed'
+                booking.save()
+                
+                messages.success(request, 'Booking and payment successful!')
                 return redirect('my_bookings')
+                
             except IntegrityError:
                 messages.error(request, 'You have already booked this conference.')
                 return redirect('conference_detail', slug=slug)
     else:
-        form = BookingForm(initial={'conference': conference})
+        booking_form = BookingForm(initial={'conference': conference})
+        payment_form = PaymentForm()
     
     return render(request, 'booking_app/booking_form.html', {
-        'form': form,
+        'form': booking_form,
+        'payment_form': payment_form,
         'conference': conference
     })
 
