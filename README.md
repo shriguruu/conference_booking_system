@@ -49,7 +49,7 @@ Before running this application, make sure you have the following installed:
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/shriguruu/conference_booking_system
-cd conference-booking-system
+cd conference_booking_system
 ```
 
 ### 2. Create Virtual Environment
