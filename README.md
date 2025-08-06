@@ -48,7 +48,7 @@ Before running this application, make sure you have the following installed:
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/shriguruu/conference_booking_system
 cd conference-booking-system
 ```
 
@@ -127,138 +127,7 @@ conference-booking-system/
 └── README.md                  # This file
 ```
 
-## 🗄️ Database Models
 
-### Core Models
-- **User**: Extended user model with phone and role fields
-- **Conference**: Conference details including topic, date, time, capacity, and price
-- **Speaker**: Speaker information with expertise
-- **Booking**: User conference bookings with status tracking
-- **Payment**: Payment transaction details
-- **Feedback**: User feedback and ratings
-
-### Relationships
-- Conferences can have multiple speakers
-- Users can book multiple conferences
-- Each booking can have associated payments
-- Users can provide feedback for attended conferences
-
-## 🔧 Configuration
-
-### Environment Variables
-Create a `.env` file in the root directory with the following variables:
-```
-SECRET_KEY=your-secret-key
-DEBUG=True
-DATABASE_URL=mysql://user:password@localhost:3306/conference_db
-```
-
-### Static Files
-```bash
-python manage.py collectstatic
-```
-
-## 🚀 Usage
-
-### For Attendees
-1. **Register/Login**: Create an account or login to existing account
-2. **Browse Conferences**: View available conferences with search and filter options
-3. **Book Conference**: Select a conference and complete the booking process
-4. **Manage Bookings**: View, cancel, and download receipts for your bookings
-5. **Submit Feedback**: Rate and review conferences you've attended
-
-### For Administrators
-1. **Access Admin Panel**: Use the Django admin interface at `/admin/`
-2. **Manage Conferences**: Create, edit, and delete conferences
-3. **Manage Speakers**: Add and update speaker information
-4. **Monitor Bookings**: Track all bookings and payment status
-5. **User Management**: Manage user accounts and roles
-
-## 🔒 Security Features
-
-- **CSRF Protection**: All forms include CSRF tokens
-- **Authentication**: Secure login/logout system
-- **Role-based Access**: Different permissions for different user roles
-- **Input Validation**: Form validation and sanitization
-- **SQL Injection Protection**: Django ORM provides protection
-
-## 📊 Features in Detail
-
-### Conference Management
-- Create conferences with topics, descriptions, dates, and times
-- Set capacity limits and pricing
-- Assign multiple speakers to conferences
-- Categorize conferences for better organization
-
-### Booking System
-- Real-time capacity checking
-- Prevent duplicate bookings
-- Booking status tracking (pending, confirmed, cancelled)
-- Payment status integration
-
-### Payment Tracking
-- Multiple payment methods support
-- Transaction ID tracking
-- Payment status monitoring
-- Receipt generation
-
-### Feedback System
-- Star rating system
-- Comment submission
-- One feedback per user per conference
-- Rating aggregation
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Error**
-   - Ensure MySQL server is running
-   - Verify database credentials in settings.py
-   - Check if database exists
-
-2. **Migration Errors**
-   - Delete migration files and recreate them
-   - Ensure database is properly configured
-
-3. **Static Files Not Loading**
-   - Run `python manage.py collectstatic`
-   - Check static files configuration
-
-4. **PDF Generation Issues**
-   - Ensure ReportLab is properly installed
-   - Check file permissions for PDF generation
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👥 Authors
-
-- Your Name - Initial work
-
-## 🙏 Acknowledgments
-
-- Django Documentation
-- Bootstrap for UI components
-- ReportLab for PDF generation
-- MySQL for database management
-
-## 📞 Support
-
-For support and questions, please contact:
-- Email: your-email@example.com
-- GitHub Issues: [Create an issue](https://github.com/yourusername/conference-booking-system/issues)
-
----
 
 **Note**: This is a development version. For production deployment, ensure to:
 - Set `DEBUG = False`
