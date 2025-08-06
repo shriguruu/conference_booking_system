@@ -29,7 +29,7 @@ A comprehensive Django-based web application for managing conference bookings, s
 
 ## 🛠️ Technology Stack
 
-- **Backend**: Django 4.x
+- **Backend**: Django
 - **Database**: MySQL
 - **Frontend**: HTML, CSS, Bootstrap
 - **PDF Generation**: ReportLab
@@ -129,9 +129,9 @@ conference-booking-system/
 
 
 
-**Note**: This is a development version. For production deployment, ensure to:
-- Set `DEBUG = False`
-- Use environment variables for sensitive data
-- Configure proper database settings
-- Set up HTTPS
-- Implement proper backup strategies 
+
+
+
+
+
+
