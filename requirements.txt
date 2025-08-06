@@ -1,0 +1,21 @@
+# Django Framework
+Django>=4.2.0,<5.0.0
+
+# Database
+mysqlclient>=2.1.0
+
+# Form Styling
+django-widget-tweaks>=1.4.12
+
+# PDF Generation
+reportlab>=4.0.0
+
+# Development and Production Dependencies
+# Uncomment these for development
+# django-debug-toolbar>=4.0.0
+# django-extensions>=3.2.0
+
+# Production Dependencies (uncomment for production)
+# gunicorn>=21.0.0
+# whitenoise>=6.5.0
+# python-decouple>=3.8 
